@@ -7,7 +7,15 @@
 
 import SwiftUI
 
+protocol textFieldProtocol: View{
+     var text: String {get set}
+    var placeholder: String {get set}
+    
+}
+
 struct underLineTextField: View {
+    //@Binding lets us declare that one value actually comes from elsewhere, and should be shared
+    //in both places.
     @Binding var text: String
     let placeholder: String
 
@@ -17,14 +25,31 @@ struct underLineTextField: View {
         VStack(alignment: .leading) {
                 Text(placeholder)
                     .padding(.top, 10)
-                TextField(placeholder, text: $text)
-            }
-            
+            TextField(placeholder, text: $text)
             Rectangle()
                 .frame(height: 1)
                 .foregroundColor(Color("borderColor"))
                 .padding(.bottom, 10)
         }
+    }
+}
+
+struct underLineSecureField: textFieldProtocol {
+    @Binding var text: String
+    var placeholder: String
+    
+    var body: some View {
+        
+        VStack(alignment: .leading) {
+                Text(placeholder)
+                    .padding(.top, 10)
+            SecureField(placeholder, text: $text)
+            Rectangle()
+                .frame(height: 1)
+                .foregroundColor(Color("borderColor"))
+                .padding(.bottom, 10)
+        }
+    }
 }
 
 //struct LoginTextFieldView_Previews: PreviewProvider {

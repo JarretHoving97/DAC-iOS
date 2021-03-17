@@ -19,61 +19,69 @@ struct LoginView: View {
     var loginManager = FirebaseAuthManager()
 
     var body: some View {
-        VStack(){
-            Image("logo")
-                .resizable()
-                .scaledToFit()
-                .padding(10)
-            Text("Welkom bij de app van volleybal Dedemsvaart! Vul hier uw inloggegevens in")
-                .padding(20)
-
-                
-            LoginForm(userName: userEmail, password: userPass)
-                .padding(.trailing, 20)
-                .padding(.leading, 20)
-            HStack {
+        NavigationView {
+            VStack(){
                 Spacer()
-                Button(action: {}, label: {
-                    Text("Nog geen account?")
-                        .foregroundColor(Color("SecondairyColor"))
+                Image("logo")
 
-                })
-                .padding(.trailing, 20)
-                .padding(.bottom, 20)
-               
-            }
-            
-            Button(action: {
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: UIScreen.main.bounds.size.width, height: 90, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                Text("Welkom bij de app van volleybal Dedemsvaart! Vul hier uw inloggegevens in")
+                    .padding(.bottom, 20)
+                    .padding(.trailing, 20)
+                    .padding(.leading, 20)
                 
-                loginManager.signIn(email: userEmail, pass: userPass) { (success) in
-                    var message : String = ""
-                    if success {
-                        message = "Success!"
-                    } else {
-                        message = "Credentials invalid"
+              LoginForm(userName: $userEmail, password: $userPass)
+                    .padding(.trailing, 20)
+                    .padding(.leading, 20)
+                HStack {
+                    Spacer()
+                    NavigationLink(destination: RegisterView()) {
+                        Text("Nog geen account?")
+                            .foregroundColor(Color("SecondairyColor"))
                     }
-                    alert = Alert(title: Text(""), message: Text(message), dismissButton: .default(Text("Ok")))
-                    showAlert = true
-
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 20)
+                    .animation(.easeIn)
                 }
-            }, label: {
-                Text("Login")
-                    .foregroundColor(.white)
-                    .font(.title2)
                 
+                Button(action: {
+                    if !userEmail.isEmpty && !userPass.isEmpty {
+                        loginManager.signIn(email: userEmail, pass: userPass) { (success) in
+                            print("creds: Email: \(userEmail), pass: \(userPass)")
+                            var message : String = ""
+                            if success {
+                                message = "Success!"
+                            } else {
+                                message = "Credentials invalid"
+                            }
+                            alert = Alert(title: Text(""), message: Text(message), dismissButton: .default(Text("Ok")))
+                            showAlert = true
+                        }
+                    }
+                }, label: {
+                    Text("Login")
+                        .foregroundColor(.white)
+                        .font(.title2)
+                    
+                })
+                .frame(width: UIScreen.main.bounds.size.width - 40, height: 72, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/ )
+                .background(Color("ThemeColor"))
+                .cornerRadius(5.0)
+              
+                Spacer()
+            }
+            .padding(.top, 60)
+          
+            .ignoresSafeArea(edges: .top)
+            .alert(isPresented: $showAlert, content: {
+                alert
             })
-            .frame(width: UIScreen.main.bounds.size.width - 40, height: 72, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/ )
-            .background(Color("ThemeColor"))
-            .cornerRadius(5.0)
         }
-        .alert(isPresented: $showAlert, content: {
-            alert
-        })
     }
-
-    
-
 }
+
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {

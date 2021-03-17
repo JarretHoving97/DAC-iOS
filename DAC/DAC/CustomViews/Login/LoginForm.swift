@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct LoginForm: View {
+    //@Binding lets us declare that one value actually comes from elsewhere, and should be shared
+    //in both places.
+    @Binding var userName: String
+    @Binding var password: String
+    
     var body: some View {
-        rectangle()
-    }
-}
-
-struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        LoginForm()
+            VStack(alignment: .leading){
+                underLineTextField(text: $userName, placeholder: "Email")
+                underLineSecureField(text: $password, placeholder: "Wachtwoord")
+            }
     }
 }
