@@ -49,14 +49,15 @@ struct LoginView: View {
                 
                 Button(action: {
                     if !userEmail.isEmpty && !userPass.isEmpty {
-                        loginManager.signIn(email: userEmail, pass: userPass) { (success) in
-                            if success == true {
-                                self.snackbar = SnackBar(popColor: .success, text: loginManager.loginMessage)
-                            } else {
-                                self.snackbar = SnackBar(popColor: .note, text: loginManager.loginMessage)
-                            }
-                            presentSnackBar(dissolveAfter: 2)
-                        }
+                        
+//                        loginManager.signIn(email: userEmail, pass: userPass) { (success) in
+//                            if success == true {
+//                                self.snackbar = SnackBar(popColor: .success, text: loginManager.loginMessage)
+//                            } else {
+//                                self.snackbar = SnackBar(popColor: .note, text: loginManager.loginMessage)
+//                            }
+//                            presentSnackBar(dissolveAfter: 2)
+//                        }
                     }
                 }, label: {
                     Text("Login")
@@ -64,6 +65,15 @@ struct LoginView: View {
                         .font(.title2)
                     
                 })
+                NavigationLink(
+                    destination: NewsView(isLoading: false, newsItems: NewsFeed.shared.feed),
+                    label: {
+                        Text("Login")
+                            .foregroundColor(.white)
+                            .font(.title2)
+
+                    })
+
                 .frame(width: UIScreen.main.bounds.size.width - 40, height: 72, alignment: .center )
                 .background(Color("ThemeColor"))
                 .cornerRadius(5.0)
@@ -74,6 +84,7 @@ struct LoginView: View {
             .background(Color("BackgroundColor"))
             .ignoresSafeArea()
         }
+     
         .modifier(JaHoPop(isPresented: showAlert, alignment: .top, direction: .top, content: {
             snackbar
         }))

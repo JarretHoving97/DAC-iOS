@@ -41,12 +41,12 @@ class FirebaseAuthManager {
     func registration(email: String, password: String, passRepeat: String, completionBlock: @escaping (_ success: Bool) -> Void){
         if !passwordIsValid(firstPassField: password, secondPassField: passRepeat) {
             registrationMessage = "Wachtwoord voldoet niet aan de eisen";  return
-        }
+        } else {
         
         Auth.auth().createUser(withEmail: email, password: password) { (result, error) in
             if let error = error, let errorCode = AuthErrorCode(rawValue: error._code) {
                     completionBlock(true)
-                }else {
+                
                     switch errorCode {
                     case .emailAlreadyInUse:
                         self.registrationMessage = "Email bestaat al"
@@ -54,11 +54,10 @@ class FirebaseAuthManager {
                         print(error)
                         self.registrationMessage = "Er is iets mis gegaan."
                     }
-               
                     completionBlock(false)
+                } else {
+                    self.registrationMessage = "Account succesvol geregistreerd!"
                 }
-            } else {
-                self.registrationMessage = "Account succesvol geregistreerd!"
             }
         }
     }
