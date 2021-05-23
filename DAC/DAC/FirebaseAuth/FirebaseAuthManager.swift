@@ -11,46 +11,65 @@ import SwiftUI
 
 class FirebaseAuthManager {
     
-    func signIn(email: String, pass: String, completionBlock: @escaping (_ success: Bool) -> Void) {
+    var loginMessage: String = ""
+    var registrationMessage: String = ""
+    
+   func signIn(email: String, pass: String, completionBlock: @escaping (_ success: Bool) -> Void){
         Auth.auth().signIn(withEmail: email, password: pass) { (result, error) in
             if let error = error, let errorCode = AuthErrorCode(rawValue: error._code) {
-                print("error: \(errorCode)")
+                
+                switch  errorCode {
+                case .wrongPassword:
+                    self.loginMessage = "Wachtwoord is onjuist"
+                case .unverifiedEmail:
+                    self.loginMessage = "Uw account is nog niet geverifieerd"
+                case .userNotFound:
+                    self.loginMessage = "Gebruikersnaam niet gevonden"
+                case .invalidEmail:
+                    self.loginMessage = "Ongeldige gebruikersnaam"
+                default:
+                    self.loginMessage = "Inloggen is niet mogelijk"
+                }
                 completionBlock(false)
             } else {
-                print("Success logging in!")
+                self.loginMessage = "U bent ingelogd"
                 completionBlock(true)
             }
         }
     }
     
+    func registration(email: String, password: String, passRepeat: String, completionBlock: @escaping (_ success: Bool) -> Void){
+        if !passwordIsValid(firstPassField: password, secondPassField: passRepeat) {
+            registrationMessage = "Wachtwoord voldoet niet aan de eisen";  return
+        }
+        
+        Auth.auth().createUser(withEmail: email, password: password) { (result, error) in
+            if let error = error, let errorCode = AuthErrorCode(rawValue: error._code) {
+                    completionBlock(true)
+                }else {
+                    switch errorCode {
+                    case .emailAlreadyInUse:
+                        self.registrationMessage = "Email bestaat al"
+                    default:
+                        print(error)
+                        self.registrationMessage = "Er is iets mis gegaan."
+                    }
+               
+                    completionBlock(false)
+                }
+            } else {
+                self.registrationMessage = "Account succesvol geregistreerd!"
+            }
+        }
+    }
     
-//    func createUser(email: String, password: String, completionBlock: @escaping (_ success: Bool) -> Void) {
-//        Auth.auth().createUser(withEmail: email, password: password) {(authResult, error) in
-//            var message: String = ""
-//            if let user = authResult?.user {
-//                print(user)
-//                message = "Logged in succesfully!"
-//                completionBlock(true)
-//            } else {
-//                message = "Unvalid information"
-//                completionBlock(false)
-//            }
-//        }
-//    }
-    
-//    func didTapSignUpButton(email: String, password: String) {
-//        let signUpManager = FirebaseAuthManager()
-//            signUpManager.createUser(email: email, password: password) {[weak self] (success) in
-//                guard let `self` = self else { return }
-//                var message: String = ""
-//                if (success) {
-//                    message = "User was sucessfully created."
-//                } else {
-//                    message = "There was an error."
-//                }
-//                let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-//                alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-//                display(alertController: alertController)
-//            }
-//        }
+    func passwordIsValid(firstPassField: String, secondPassField: String) -> Bool {
+        if firstPassField != secondPassField {
+            registrationMessage = "Wachtwoord velden zijn niet gelijk"
+            return false
+        } else {
+            let passwordTest =  NSPredicate(format: "SELF MATCHES %@", "^(?=.*[a-z])[A-Za-z\\d$@$#!%*?&]{6,}")
+            return passwordTest.evaluate(with: firstPassField)
+        }
+    }
 }

@@ -17,22 +17,23 @@ struct LoginView: View {
     @State var showAlert = false
     @State var alert = Alert(title: Text(""))
     var loginManager = FirebaseAuthManager()
+    @State var snackbar: SnackBar? = nil
 
     var body: some View {
         NavigationView {
             VStack(){
                 Spacer()
                 Image("logo")
-
                     .resizable()
                     .scaledToFit()
-                    .frame(width: UIScreen.main.bounds.size.width, height: 90, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                    .padding(10)
+                
                 Text("Welkom bij de app van volleybal Dedemsvaart! Vul hier uw inloggegevens in")
                     .padding(.bottom, 20)
                     .padding(.trailing, 20)
                     .padding(.leading, 20)
                 
-              LoginForm(userName: $userEmail, password: $userPass)
+                LoginForm(userName: $userEmail, password: $userPass)
                     .padding(.trailing, 20)
                     .padding(.leading, 20)
                 HStack {
@@ -49,15 +50,12 @@ struct LoginView: View {
                 Button(action: {
                     if !userEmail.isEmpty && !userPass.isEmpty {
                         loginManager.signIn(email: userEmail, pass: userPass) { (success) in
-                            print("creds: Email: \(userEmail), pass: \(userPass)")
-                            var message : String = ""
-                            if success {
-                                message = "Success!"
+                            if success == true {
+                                self.snackbar = SnackBar(popColor: .success, text: loginManager.loginMessage)
                             } else {
-                                message = "Credentials invalid"
+                                self.snackbar = SnackBar(popColor: .note, text: loginManager.loginMessage)
                             }
-                            alert = Alert(title: Text(""), message: Text(message), dismissButton: .default(Text("Ok")))
-                            showAlert = true
+                            presentSnackBar(dissolveAfter: 2)
                         }
                     }
                 }, label: {
@@ -66,26 +64,36 @@ struct LoginView: View {
                         .font(.title2)
                     
                 })
-                .frame(width: UIScreen.main.bounds.size.width - 40, height: 72, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/ )
+                .frame(width: UIScreen.main.bounds.size.width - 40, height: 72, alignment: .center )
                 .background(Color("ThemeColor"))
                 .cornerRadius(5.0)
-              
+                
                 Spacer()
             }
-            .padding(.top, 60)
-          
-            .ignoresSafeArea(edges: .top)
-            .alert(isPresented: $showAlert, content: {
-                alert
-            })
+            
+            .background(Color("BackgroundColor"))
+            .ignoresSafeArea()
+        }
+        .modifier(JaHoPop(isPresented: showAlert, alignment: .top, direction: .top, content: {
+            snackbar
+        }))
+    }
+    
+    func presentSnackBar(dissolveAfter: Int){
+    showAlert = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(dissolveAfter)) {
+            showAlert = false
         }
     }
 }
 
 
+
+
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
+            .preferredColorScheme(.dark)
     }
 }
 
